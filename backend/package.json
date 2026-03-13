@@ -1,0 +1,52 @@
+{
+  "name": "plexus-drive-backend",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "axios": "^1.12.2",
+    "bcrypt": "^6.0.0",
+    "bullmq": "^5.58.7",
+    "compromise": "^14.14.4",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "csurf": "^1.2.2",
+    "dotenv": "^17.2.2",
+    "dropbox": "^10.34.0",
+    "exceljs": "^4.4.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "express-validator": "^7.2.1",
+    "ffprobe-static": "^3.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "jszip": "^3.10.1",
+    "keyword-extractor": "^0.0.28",
+    "libreoffice-convert": "^1.7.0",
+    "mammoth": "^1.11.0",
+    "multer": "^2.0.2",
+    "music-metadata": "^11.9.0",
+    "natural": "^8.1.0",
+    "node-fetch": "^2.7.0",
+    "node-rake": "^1.0.1",
+    "node-summarizer": "^1.0.7",
+    "nodemailer": "^7.0.6",
+    "office-to-pdf": "^2.0.0",
+    "officeparser": "^5.2.0",
+    "pdf-parse": "^1.1.1",
+    "pg": "^8.16.3",
+    "redis": "^4.6.13",
+    "sentiment": "^5.0.2",
+    "stopword": "^3.1.5",
+    "tesseract.js": "^6.0.1",
+    "wav-file-info": "^0.0.10",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.4"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "feather": "^0.0.6",
+    "react-feather": "^2.0.10"
+  }
+}

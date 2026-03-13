@@ -1,0 +1,48 @@
+# Netlify Configuration for Plexus Drive Frontend
+
+[build]
+  # Build command
+  command = "npm run build"
+  
+  # Directory with built files
+  publish = "dist"
+  
+  # Base directory (if frontend is in a subfolder)
+  base = "frontend"
+
+# Environment variables (can also be set in Netlify dashboard)
+[build.environment]
+  NODE_VERSION = "18"
+
+# Redirect rules for SPA (Single Page Application)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Cache static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Production context settings
+[context.production]
+  command = "npm run build"
+
+# Branch deploy context
+[context.branch-deploy]
+  command = "npm run build"
+
+# Deploy preview context
+[context.deploy-preview]
+  command = "npm run build"

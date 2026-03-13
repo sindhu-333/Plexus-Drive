@@ -1,0 +1,73 @@
+# Render Blueprint for Plexus Drive Backend
+# This file tells Render how to deploy your app
+
+services:
+  # Main backend service
+  - type: web
+    name: plexus-drive-backend
+    env: node
+    region: oregon # or singapore, frankfurt (choose closest to you)
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: plexus-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true # Render auto-generates this
+      - key: FRONTEND_URL
+        sync: false # You'll add this manually
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: 587
+      - key: EMAIL_SECURE
+        value: false
+      - key: EMAIL_USER
+        sync: false # Add manually
+      - key: EMAIL_PASS
+        sync: false # Add manually
+      - key: EMAIL_FROM
+        sync: false # Add manually
+      - key: DROPBOX_APP_KEY
+        sync: false # Add manually
+      - key: DROPBOX_APP_SECRET
+        sync: false # Add manually
+      - key: DROPBOX_REFRESH_TOKEN
+        sync: false # Add manually
+
+  # Background worker (optional - processes AI analysis)
+  - type: worker
+    name: plexus-drive-worker
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node worker.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: plexus-db
+          property: connectionString
+      - key: DROPBOX_APP_KEY
+        sync: false
+      - key: DROPBOX_APP_SECRET
+        sync: false
+      - key: DROPBOX_REFRESH_TOKEN
+        sync: false
+
+# Database
+databases:
+  - name: plexus-db
+    databaseName: plexus_db
+    user: plexus_user
+    plan: free

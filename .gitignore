@@ -1,0 +1,88 @@
+# Dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+backend/Logs/
+backend/logs/
+
+# Redis binaries and configs
+*.exe
+*.pdb
+backend/redis-*.exe
+backend/redis-*.pdb
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production
+backend/.env
+frontend/.env.production
+
+# Build output
+dist/
+build/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Uploads and temporary files
+backend/uploads/
+backend/temp/
+*.tmp
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache
+.cache/
+.npm/
+.yarn/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+*.bak
+*.orig
+
+# Sensitive tokens and data files
+backend/dropbox_token.txt
+backend/data.txt
+backend/eng.traineddata
+ngrok.yml
+
+# Test files
+backend/test-*.js
+backend/fix-passwords.js
+backend/get_refresh_token.js
+
+# Obsolete migration files (replaced by database.sql)
+backend/init.sql
+backend/migrate*.js
+backend/migrate*.sql
+backend/add_*.sql
+backend/run-migration.js
+plx.sql
+
+# Local development scripts (Windows-specific)
+*.bat
+*.ps1
+
+# Redis config (not used)
+backend/config/
+
+# Duplicate files
+email-verification-helper.html
