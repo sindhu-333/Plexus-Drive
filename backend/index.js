@@ -128,8 +128,9 @@ app.use((req, res, next) => {
     next();
 });
 
-// CSRF protection (only in production)
-if (process.env.NODE_ENV === 'production') {
+// CSRF protection (optional in production)
+const enableCsrfProtection = process.env.ENABLE_CSRF === 'true';
+if (process.env.NODE_ENV === 'production' && enableCsrfProtection) {
     const csrfProtection = csurf({ cookie: true });
     app.use((req, res, next) => {
         if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
@@ -143,7 +144,7 @@ if (process.env.NODE_ENV === 'production') {
         res.json({ csrfToken: req.csrfToken() });
     });
 } else {
-    // For development, skip CSRF
+    // Skip CSRF in development (and in production unless explicitly enabled)
     app.use((req, res, next) => {
         if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
             return next();

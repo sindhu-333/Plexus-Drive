@@ -16,8 +16,8 @@ Use this checklist to ensure smooth deployment.
 - [ ] Sign up at neon.tech
 - [ ] Create project "plexus-drive"
 - [ ] Copy connection string
-- [ ] Run `init.sql` in SQL Editor
-- [ ] Run all `migrate_*.sql` files
+- [ ] Run `database.sql` in SQL Editor
+- [ ] No extra migration files needed (already consolidated)
 - [ ] Verify tables created
 
 **Connection String:**

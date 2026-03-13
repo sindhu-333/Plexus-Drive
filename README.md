@@ -239,8 +239,7 @@ GRANT ALL PRIVILEGES ON DATABASE plexus_db TO postgres;
 
 #### Initialize Database Schema
 ```bash
-cd backend
-psql -U postgres -d plexus_db -f init.sql
+psql -U postgres -d plexus_db -f database.sql
 ```
 
 ### **Step 4: Environment Configuration**
@@ -1048,7 +1047,7 @@ git push origin main
 
 2. **Deploy Database** (Neon)
    - Sign up at [neon.tech](https://neon.tech)
-   - Create project, import `backend/init.sql`
+   - Create project, import `database.sql`
    - Copy connection string
 
 3. **Deploy Backend** (Render)

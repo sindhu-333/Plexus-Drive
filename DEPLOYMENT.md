@@ -60,14 +60,9 @@ git push -u origin main
 ### 2. Import Database Schema
 
 1. In Neon dashboard, click "SQL Editor"
-2. Copy content from `backend/init.sql`
+2. Copy content from `database.sql`
 3. Paste and run in SQL Editor
-4. Also run migration files:
-   - `backend/add_email_verification.sql`
-   - `backend/add_password_reset.sql`
-   - `backend/migrate_user_profile.sql`
-   - `backend/migrate_user_profile_extended.sql`
-   - Other migrate_*.sql files
+4. No additional migration scripts are required
 
 ### 3. Verify Tables
 
