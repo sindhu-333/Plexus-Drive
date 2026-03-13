@@ -2,6 +2,11 @@ const { getCurrentNetworkIP } = require('../utils/urlHelper');
 
 // Middleware to handle requests from old IPs and redirect to current IP
 const handleIPRedirect = (req, res, next) => {
+  // Disable in production — Render's internal IPs must never be exposed externally
+  if (process.env.NODE_ENV === 'production') {
+    return next();
+  }
+
   // Get current network IP
   const currentIP = getCurrentNetworkIP();
   const requestHost = req.get('host');
