@@ -86,6 +86,10 @@ CREATE TABLE files (
 CREATE TABLE file_ai_results (
     id SERIAL PRIMARY KEY,
     file_id INTEGER UNIQUE NOT NULL REFERENCES files(id) ON DELETE CASCADE,
+    summary TEXT,
+    keywords JSONB,
+    sentiment VARCHAR(50),
+    document_category VARCHAR(100),
     content_summary TEXT,
     key_topics TEXT[],
     file_category VARCHAR(50),
