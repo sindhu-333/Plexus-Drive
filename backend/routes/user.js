@@ -6,6 +6,7 @@ const { pool } = require("../db");
 const authMiddleware = require("../middleware/authMiddleware");
 const upload = require("../middleware/multer");
 const emailService = require("../services/emailService");
+const { uploadFileAndGetUrl } = require("../utils/dropbox");
 
 const router = express.Router();
 
@@ -374,19 +375,16 @@ router.post("/profile-picture", authMiddleware, upload.single("profilePicture"),
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    // Generate unique filename
-    const fileExtension = path.extname(req.file.originalname);
-    const fileName = `profile_${req.user.id}_${Date.now()}${fileExtension}`;
-    const filePath = path.join(uploadDir, fileName);
-    const relativePath = `/uploads/profiles/${fileName}`;
+    // Upload to Dropbox and get a permanent public URL
+    const fileExtension = path.extname(req.file.originalname) || '.jpg';
+    const dropboxPath = `/profiles/profile_${req.user.id}_${Date.now()}${fileExtension}`;
 
-    // Save file to disk
-    fs.writeFileSync(filePath, req.file.buffer);
+    const publicUrl = await uploadFileAndGetUrl(dropboxPath, req.file.buffer);
 
-    // Update database with file path
+    // Update database with the public Dropbox URL
     const result = await pool.query(
       "UPDATE users SET profile_picture = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING profile_picture",
-      [relativePath, req.user.id]
+      [publicUrl, req.user.id]
     );
     
     res.json({ 
