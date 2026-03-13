@@ -101,7 +101,11 @@ router.post('/register', registerValidation, validate, async (req, res) => {
             await emailService.sendEmailVerification(email, name, verificationUrl, null, req);
         } catch (emailError) {
             console.error('Failed to send verification email:', emailError);
-            // Don't fail registration if email fails, but log it
+            return res.status(500).json({
+                message: 'Account created, but verification email could not be sent. Please use "Resend Verification Email" from login after checking email settings.',
+                requiresVerification: true,
+                emailDeliveryFailed: true
+            });
         }
         
         res.status(201).json({ 

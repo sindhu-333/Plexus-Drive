@@ -9,25 +9,30 @@ class EmailService {
     // In production, you would use a real SMTP service like Gmail, SendGrid, etc.
     this.transporter = null;
     this.initialized = false;
+    this.isProduction = process.env.NODE_ENV === 'production';
   }
 
   async initializeTransporter() {
     try {
+      const emailHost = process.env.EMAIL_HOST;
+      const emailUser = process.env.EMAIL_USER;
+      const emailPass = (process.env.EMAIL_PASS || '').replace(/\s+/g, '');
+
       // Check if real email credentials are provided
-      if (process.env.EMAIL_USER && process.env.EMAIL_PASS && process.env.EMAIL_HOST) {
-        console.log('📧 Email service initializing with SMTP:', process.env.EMAIL_HOST);
-        console.log('📧 Email user:', process.env.EMAIL_USER);
+      if (emailUser && emailPass && emailHost) {
+        console.log('📧 Email service initializing with SMTP:', emailHost);
+        console.log('📧 Email user:', emailUser);
         console.log('📧 Email port:', process.env.EMAIL_PORT);
         console.log('📧 Email secure:', process.env.EMAIL_SECURE);
         
         // Create real SMTP transporter
         this.transporter = nodemailer.createTransport({
-          host: process.env.EMAIL_HOST,
+          host: emailHost,
           port: parseInt(process.env.EMAIL_PORT) || 587,
           secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
           auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
+            user: emailUser,
+            pass: emailPass
           },
           tls: {
             rejectUnauthorized: false
@@ -42,6 +47,10 @@ class EmailService {
         console.log('✅ Emails will be sent from:', process.env.EMAIL_FROM);
         
       } else {
+        if (this.isProduction) {
+          throw new Error('Missing EMAIL_HOST/EMAIL_USER/EMAIL_PASS in production environment');
+        }
+
         console.log('📧 Email service in DEMO mode - emails will be logged but not actually sent');
         
         // Create a mock transporter that logs emails
@@ -68,6 +77,11 @@ class EmailService {
       console.error('Failed to initialize email service:', error);
       this.initialized = false;
       this.transporter = null;
+
+      if (this.isProduction) {
+        // In production, fail fast so API can return a clear error instead of pretending emails were sent.
+        throw error;
+      }
       
       // Fallback to demo mode on error
       this.transporter = {
