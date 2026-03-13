@@ -14,64 +14,100 @@ class EmailService {
 
   async initializeTransporter() {
     try {
+      const brevoApiKey = process.env.BREVO_API_KEY;
+
+      // Prefer Brevo HTTP API in production (works on Render — no SMTP port blocking)
+      if (brevoApiKey) {
+        console.log('📧 Email service initializing with Brevo API');
+        const fromEmail = process.env.EMAIL_FROM;
+        if (!fromEmail) {
+          throw new Error('Missing EMAIL_FROM in environment variables');
+        }
+
+        this.transporter = {
+          sendMail: async (mailOptions) => {
+            const toList = Array.isArray(mailOptions.to)
+              ? mailOptions.to.map(e => ({ email: e }))
+              : [{ email: mailOptions.to }];
+
+            const payload = {
+              sender: { name: 'Plexus Drive', email: fromEmail },
+              to: toList,
+              subject: mailOptions.subject,
+              htmlContent: mailOptions.html,
+              textContent: mailOptions.text,
+            };
+
+            const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'api-key': brevoApiKey,
+              },
+              body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+              const errText = await response.text();
+              throw new Error(`Brevo API error ${response.status}: ${errText}`);
+            }
+
+            const data = await response.json();
+            console.log('✅ Brevo email sent:', data.messageId);
+            return {
+              messageId: data.messageId || `brevo-${Date.now()}`,
+              accepted: Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to],
+              rejected: [],
+            };
+          },
+        };
+
+        console.log('✅ Email service initialized with Brevo API');
+        console.log('✅ Emails will be sent from:', fromEmail);
+        this.initialized = true;
+        return;
+      }
+
       const emailHost = process.env.EMAIL_HOST;
       const emailUser = process.env.EMAIL_USER;
       const emailPass = (process.env.EMAIL_PASS || '').replace(/\s+/g, '');
 
-      // Check if real email credentials are provided
+      // Fall back to SMTP (local dev)
       if (emailUser && emailPass && emailHost) {
         console.log('📧 Email service initializing with SMTP:', emailHost);
-        console.log('📧 Email user:', emailUser);
-        console.log('📧 Email port:', process.env.EMAIL_PORT);
-        console.log('📧 Email secure:', process.env.EMAIL_SECURE);
-        
-        // Create real SMTP transporter
+
         this.transporter = nodemailer.createTransport({
           host: emailHost,
           port: parseInt(process.env.EMAIL_PORT) || 587,
-          secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
-          auth: {
-            user: emailUser,
-            pass: emailPass
-          },
-          tls: {
-            rejectUnauthorized: false
-          },
-          debug: true, // Enable debug output
-          logger: true // Log to console
+          secure: process.env.EMAIL_SECURE === 'true',
+          auth: { user: emailUser, pass: emailPass },
+          tls: { rejectUnauthorized: false },
         });
 
-        // Verify the connection
         await this.transporter.verify();
         console.log('✅ SMTP connection verified - Real emails will be sent');
-        console.log('✅ Emails will be sent from:', process.env.EMAIL_FROM);
-        
       } else {
         if (this.isProduction) {
-          throw new Error('Missing EMAIL_HOST/EMAIL_USER/EMAIL_PASS in production environment');
+          throw new Error('Missing BREVO_API_KEY (or EMAIL_HOST/EMAIL_USER/EMAIL_PASS) in production environment');
         }
 
-        console.log('📧 Email service in DEMO mode - emails will be logged but not actually sent');
-        
-        // Create a mock transporter that logs emails
+        // Demo mode for local dev without credentials
         this.transporter = {
           sendMail: async (mailOptions) => {
             console.log('📧 DEMO EMAIL SENT:');
             console.log('   To:', mailOptions.to);
             console.log('   Subject:', mailOptions.subject);
             console.log('   Content:', mailOptions.text?.substring(0, 100) + '...');
-            
             return {
               messageId: `demo-${Date.now()}@plexusdrive.com`,
               accepted: [mailOptions.to],
-              rejected: []
+              rejected: [],
             };
-          }
+          },
         };
-        
-        console.log('📧 Email service initialized in DEMO mode (emails will be logged, not sent)');
+        console.log('📧 Email service initialized in DEMO mode');
       }
-      
+
       this.initialized = true;
     } catch (error) {
       console.error('Failed to initialize email service:', error);
@@ -79,23 +115,21 @@ class EmailService {
       this.transporter = null;
 
       if (this.isProduction) {
-        // In production, fail fast so API can return a clear error instead of pretending emails were sent.
         throw error;
       }
-      
-      // Fallback to demo mode on error
+
+      // Fallback demo mode on local error
       this.transporter = {
         sendMail: async (mailOptions) => {
-          console.log('📧 FALLBACK DEMO EMAIL (due to SMTP error):');
+          console.log('📧 FALLBACK DEMO EMAIL:');
           console.log('   To:', mailOptions.to);
           console.log('   Subject:', mailOptions.subject);
-          
           return {
             messageId: `fallback-${Date.now()}@plexusdrive.com`,
             accepted: [mailOptions.to],
-            rejected: []
+            rejected: [],
           };
-        }
+        },
       };
       this.initialized = true;
     }
