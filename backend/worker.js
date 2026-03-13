@@ -243,8 +243,12 @@ process.on('SIGTERM', () => {
     process.exit(0);
 });
 
-// Start the worker
-initializeWorker().catch(error => {
-    console.error('❌ Failed to start worker:', error);
-    process.exit(1);
-});
+// Only self-start when run directly (node worker.js), not when required by index.js
+if (require.main === module) {
+    initializeWorker().catch(error => {
+        console.error('❌ Failed to start worker:', error);
+        process.exit(1);
+    });
+}
+
+module.exports = { processJobs };

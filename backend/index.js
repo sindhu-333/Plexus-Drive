@@ -277,4 +277,9 @@ app.listen(PORT, '0.0.0.0', () => {
     }
     
     console.log(`🌐 Network access available at http://${networkIP}:${PORT}`);
+
+    // Start AI analysis worker inline (polls DB every 5s for pending files)
+    const { processJobs } = require('./worker');
+    setInterval(processJobs, 5000);
+    console.log('👷 AI analysis worker started - polling every 5 seconds');
 });
