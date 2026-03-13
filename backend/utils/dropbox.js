@@ -2,11 +2,17 @@
 const { Dropbox } = require('dropbox');
 const fs = require('fs');
 
-let tokenContent = fs.readFileSync('./dropbox_token.txt', 'utf8').trim();
-let refreshToken = tokenContent;
-
-if (tokenContent.startsWith('REFRESH_TOKEN=')) {
-    refreshToken = tokenContent.split('=')[1];
+// Use env var directly; fall back to dropbox_token.txt for local dev
+let refreshToken = process.env.DROPBOX_REFRESH_TOKEN;
+if (!refreshToken) {
+    try {
+        let tokenContent = fs.readFileSync('./dropbox_token.txt', 'utf8').trim();
+        refreshToken = tokenContent.startsWith('REFRESH_TOKEN=')
+            ? tokenContent.split('=')[1]
+            : tokenContent;
+    } catch (e) {
+        throw new Error('DROPBOX_REFRESH_TOKEN env var not set and dropbox_token.txt not found');
+    }
 }
 
 const dbx = new Dropbox({
