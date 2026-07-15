@@ -34,6 +34,8 @@ const LandingPage = () => {
           className="absolute inset-0 w-full h-full bg-cover bg-center transition-all duration-1000"
           style={{
             backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${images[currentImage]})`,
+            backgroundPosition: 'center bottom',
+            backgroundSize: 'cover',
           }}
         ></div>
 
